@@ -5,18 +5,18 @@
     <string name="salary">Salary</string>
     <string name="add_skills">Add Skills</string>
     <string name="create">Create</string>
-    <string name="skill_1">Skill 1</string>
-    <string name="skill_2">Skill 2</string>
-    <string name="skill_3">Skill 3</string>
+    <string name="skill_1">Java</string>
+    <string name="skill_2">Kotlin</string>
+    <string name="skill_3">C#</string>
     <string name="employee_profile">Employee  Profile</string>
     <string name="profile_picture">Profile Picture</string>
     <string name="add_or_replace_image">Add or replace image</string>
-    <string name="skill_4">Skill 4</string>
-    <string name="skill_5">Skill 5</string>
-    <string name="skill_6">Skill 6</string>
-    <string name="skill_7">Skill 7</string>
-    <string name="skill_8">Skill 8</string>
-    <string name="skill_9">Skill 9</string>
+    <string name="skill_4">C++</string>
+    <string name="skill_5">Python</string>
+    <string name="skill_6">React JS</string>
+    <string name="skill_7">HTML 5</string>
+    <string name="skill_8">Node JS</string>
+    <string name="skill_9">Go</string>
     <string name="employee_id">Employee ID</string>
     <string name="dummy_salary">Salary: 600000</string>
     <string name="add_employee">Add employee</string>
@@ -24,4 +24,8 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="view_profile">View  Profile</string>
     <string name="update">Update</string>
+    <string name="skills">Skills</string>
+    <string name="skills_">Skills: </string>
+    <string name="date_of_birth_">Date of Birth: </string>
+    <string name="dummy_salary_">Salary: </string>
 </resources>

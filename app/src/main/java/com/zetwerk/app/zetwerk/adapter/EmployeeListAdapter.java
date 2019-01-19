@@ -1,5 +1,6 @@
 package com.zetwerk.app.zetwerk.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -69,7 +70,7 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
         });
         
         holder.viewProfile.setOnClickListener(view -> {
-        
+            showEmployeeProfileDialog(context, employee);
         });
         
         holder.editProfile.setOnClickListener(view -> {
@@ -85,6 +86,33 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
             holder.actinsLayout.setVisibility(View.GONE);
             holder.divider.setVisibility(View.GONE);
         }
+    }
+    
+    private void showEmployeeProfileDialog(Context context, Employee employee) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_employee_profile, null, false);
+        builder.setView(view);
+        
+        AlertDialog dialog = builder.create();
+        
+        TextView name = view.findViewById(R.id.dialog_employee_name_id);
+        name.setText(employee.getName());
+        
+        TextView dob = view.findViewById(R.id.employee_dialog_dob_id);
+        dob.setText(employee.getDob());
+        
+        TextView salary = view.findViewById(R.id.employee_dialog_salary_id);
+        salary.setText(String.valueOf(employee.getSalary()));
+        
+        TextView skills = view.findViewById(R.id.employee_dialog_skills_id);
+        
+        int i = 0;
+        for (i = 0; i<employee.getSkills().size()-1; i++) {
+            skills.append(employee.getSkills().get(i) + ", ");
+        }
+        skills.append(employee.getSkills().get(i));
+        
+        dialog.show();
     }
     
     @Override

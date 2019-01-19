@@ -165,11 +165,11 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             );
             
             if (createButton.getText().toString().equals(getResources().getString(R.string.update))) {
-                showLoader("Adding employee...");
-                employeeDatabase.updateEmployee(employee, this);
-            } else {
                 showLoader("Updting employee...");
                 employeeDatabase.addEmployee(employee, this);
+            } else {
+                showLoader("Adding employee...");
+                employeeDatabase.updateEmployee(employee, this);
             }
         }
     }
