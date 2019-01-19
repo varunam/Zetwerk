@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 
 import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.EMPLOYEES;
+import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.LAST_EMPLOYEE;
 import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.PHOTOS;
+import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.ZETWERK;
 
 /**
  * Created by varun.am on 19/01/19
@@ -31,7 +33,8 @@ public class EmployeeDatabase {
     public void loadEmployeeRecords(@NonNull EmployeesLoadedCallbacks employeesLoadedCallbacks) {
         this.employeesLoadedCallbacks = employeesLoadedCallbacks;
         FirebaseDatabase.getInstance()
-                .getReference(EMPLOYEES)
+                .getReference(ZETWERK)
+                .child(EMPLOYEES)
                 .addValueEventListener(loadEmployeesValueEventListeners);
         
     }
@@ -61,8 +64,9 @@ public class EmployeeDatabase {
     
     public void addEmployee(Employee employee, EmployeeAddedCallbacks employeeAddedCallbacks) {
         FirebaseDatabase.getInstance()
-                .getReference(EMPLOYEES)
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .getReference(ZETWERK)
+                .child(EMPLOYEES)
+                .child(employee.getEmployeeId())
                 .setValue(employee)
                 .addOnSuccessListener(aVoid -> {
                     if (employeeAddedCallbacks != null)
@@ -73,6 +77,14 @@ public class EmployeeDatabase {
                     if (employeeAddedCallbacks != null)
                         employeeAddedCallbacks.onEmployeeAddFailure(employee, e.getMessage());
                 });
+        updateLastEmployee(employee);
+    }
+    
+    private void updateLastEmployee(Employee employee) {
+        FirebaseDatabase.getInstance()
+                .getReference(ZETWERK)
+                .child(LAST_EMPLOYEE)
+                .setValue(Integer.parseInt(employee.getEmployeeId().replaceAll(Employee.EMP_ID_BASE, "")));
     }
     
     public void uploadProfileImage(Uri imageUri, Employee employee, ImageUploadedCallbacks imageUploadedCallbacks) {
@@ -93,7 +105,8 @@ public class EmployeeDatabase {
     
     public void updateEmployee(Employee employee, EmployeeAddedCallbacks employeeAddedCallbacks) {
         FirebaseDatabase.getInstance()
-                .getReference(EMPLOYEES)
+                .getReference(ZETWERK)
+                .child(EMPLOYEES)
                 .child(employee.getEmployeeId())
                 .setValue(employee)
                 .addOnSuccessListener(aVoid -> {
@@ -107,9 +120,10 @@ public class EmployeeDatabase {
                 });
     }
     
-    public void deleteEmployee(Employee employee,@NonNull EmployeeDeletedCallbacks employeeDeletedCallbacks) {
+    public void deleteEmployee(Employee employee, @NonNull EmployeeDeletedCallbacks employeeDeletedCallbacks) {
         FirebaseDatabase.getInstance()
-                .getReference(EMPLOYEES)
+                .getReference(ZETWERK)
+                .child(EMPLOYEES)
                 .child(employee.getEmployeeId())
                 .removeValue()
                 .addOnSuccessListener(aVoid -> employeeDeletedCallbacks.onEmployeeDeleteSuccessful(employee))

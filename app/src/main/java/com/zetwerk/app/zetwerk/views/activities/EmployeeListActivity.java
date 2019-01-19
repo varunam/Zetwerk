@@ -3,7 +3,9 @@ package com.zetwerk.app.zetwerk.views.activities;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,6 +15,10 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.zetwerk.app.zetwerk.R;
 import com.zetwerk.app.zetwerk.adapter.EmployeeListAdapter;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeCardInteractionCallbacks;
@@ -25,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
@@ -33,15 +40,17 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
+import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.LAST_EMPLOYEE;
+import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.ZETWERK;
 
 public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener, EmployeeCardInteractionCallbacks, EmployeeDeletedCallbacks {
     
+    private static final String TAG = EmployeeListActivity.class.getSimpleName();
     private static final int SIGN_IN = 101;
     private RecyclerView employeeRecyclerView;
     private FloatingActionButton addEmployeeButton;
     private ProgressDialog progressDialog;
     
-    private ArrayList<Employee> employeesList;
     private EmployeeDatabase employeeDatabase;
     private EmployeeListAdapter employeeListAdapter;
     
@@ -62,7 +71,6 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     
     private void init() {
         progressDialog = new ProgressDialog(this);
-        employeesList = new ArrayList<>();
         employeeDatabase = new EmployeeDatabase();
         employeeListAdapter = new EmployeeListAdapter(this);
         
@@ -72,6 +80,25 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         
         addEmployeeButton = findViewById(R.id.add_employee_id);
         addEmployeeButton.setOnClickListener(this);
+        
+        observeLastEmployee();
+    }
+    
+    private void observeLastEmployee() {
+        FirebaseDatabase.getInstance()
+                .getReference(ZETWERK)
+                .child(LAST_EMPLOYEE)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        setLastEmployeeCount((long) dataSnapshot.getValue());
+                    }
+                    
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    
+                    }
+                });
     }
     
     private boolean userNotSignedIn() {
@@ -114,7 +141,6 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     @Override
     public void onEmployeeRecordsLoaded(ArrayList<Employee> employees) {
         hideLoader();
-        this.employeesList = employees;
         employeeListAdapter.setEmployeesList(employees);
     }
     
@@ -124,7 +150,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         switch (id) {
             case R.id.add_employee_id: {
                 Intent intent = new Intent(this, AddEmployeeActivity.class);
-                intent.putExtra(EMPLOYEE_COUNT_KEY, employeesList.size());
+                intent.putExtra(EMPLOYEE_COUNT_KEY, getLastEmployerCount());
                 startActivity(intent);
             }
         }
@@ -185,5 +211,20 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     @Override
     public void onEmployeeDeleteFailure(Employee employee, String errorMessage) {
         toast("Employee delete failure\n" + errorMessage);
+    }
+    
+    public void setLastEmployeeCount(long count) {
+        SharedPreferences sharedPreferences = getSharedPreferences("count-pref", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putLong("count-key", count);
+        editor.apply();
+        Log.d(TAG, "saved count: " + count);
+    }
+    
+    public long getLastEmployerCount() {
+        SharedPreferences sharedPreferences = getSharedPreferences("count-pref", MODE_PRIVATE);
+        long value = sharedPreferences.getLong("count-key", 0);
+        Log.d(TAG, "returning " + value);
+        return value;
     }
 }

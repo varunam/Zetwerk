@@ -79,7 +79,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             downloadProfileImage(employee);
         }
         if (getIntent().hasExtra(EMPLOYEE_COUNT_KEY)) {
-            String employeeIdText = Employee.EMP_ID_BASE + (getIntent().getIntExtra(EMPLOYEE_COUNT_KEY, 0) + 1);
+            String employeeIdText = Employee.EMP_ID_BASE + (getIntent().getLongExtra(EMPLOYEE_COUNT_KEY, 0) + 1);
             employeeId.setText(employeeIdText);
         }
     }
