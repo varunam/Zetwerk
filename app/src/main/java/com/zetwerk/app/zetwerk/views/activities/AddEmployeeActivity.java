@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.storage.FirebaseStorage;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
@@ -37,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_OBJECT_KEY;
@@ -89,6 +91,10 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     
     private void downloadProfileImage(Employee employee) {
         showLoader("Downloading profile picture...");
+        androidx.swiperefreshlayout.widget.CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(this);
+        circularProgressDrawable.setStrokeWidth(5f);
+        circularProgressDrawable.setCenterRadius(30f);
+        circularProgressDrawable.start();
         FirebaseStorage.getInstance()
                 .getReference()
                 .child(PHOTOS)
@@ -98,6 +104,8 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
                     hideLoader();
                     Glide.with(AddEmployeeActivity.this)
                             .load(uri)
+                            .apply(new RequestOptions()
+                                    .placeholder(circularProgressDrawable))
                             .into(profileImage);
                 })
                 .addOnFailureListener(e -> {

@@ -200,7 +200,10 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Delete employee?")
                 .setMessage("Are you sure to delete this employee?")
-                .setPositiveButton("Sure", (dialogInterface, i) -> employeeDatabase.deleteEmployee(employee, this))
+                .setPositiveButton("Sure", (dialogInterface, i) -> {
+                    showLoader("Deleting record...");
+                    employeeDatabase.deleteEmployee(employee, this);
+                })
                 .setNegativeButton("Cancel", null)
                 .create()
                 .show();
@@ -208,6 +211,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     
     @Override
     public void onEmployeeDeleteSuccessful(Employee employee) {
+        hideLoader();
         toast("Employee deleted: " + employee.getName());
     }
     
