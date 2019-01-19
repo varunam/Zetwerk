@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.storage.FirebaseStorage;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.zetwerk.app.zetwerk.R;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeAddedCallbacks;
@@ -37,7 +38,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_OBJECT_KEY;
+import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.PHOTOS;
 
 public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, EmployeeAddedCallbacks, ImageUploadedCallbacks {
     
@@ -55,6 +58,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     private Uri profileImageUri;
     
     private boolean skillsLayoutShowing = false;
+    private boolean profileImageSelected = false;
     private boolean profileUpdated = false, imageUploaded = false;
     
     private EmployeeDatabase employeeDatabase;
@@ -72,7 +76,31 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             Employee employee = getIntent().getParcelableExtra(EMPLOYEE_OBJECT_KEY);
             displayEmployeeProfile(employee);
             createButton.setText(getResources().getString(R.string.update));
+            downloadProfileImage(employee);
         }
+        if (getIntent().hasExtra(EMPLOYEE_COUNT_KEY)) {
+            String employeeIdText = Employee.EMP_ID_BASE + (getIntent().getIntExtra(EMPLOYEE_COUNT_KEY, 0) + 1);
+            employeeId.setText(employeeIdText);
+        }
+    }
+    
+    private void downloadProfileImage(Employee employee) {
+        showLoader("Downloading profile picture...");
+        FirebaseStorage.getInstance()
+                .getReference()
+                .child(PHOTOS)
+                .child(employee.getEmployeeId())
+                .getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    hideLoader();
+                    Glide.with(AddEmployeeActivity.this)
+                            .load(uri)
+                            .into(profileImage);
+                })
+                .addOnFailureListener(e -> {
+                    hideLoader();
+                    toast("Profile image download failure\n" + e.getMessage());
+                });
     }
     
     private void displayEmployeeProfile(Employee employee) {
@@ -197,6 +225,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             Glide.with(this)
                     .load(profileImageUri)
                     .into(profileImage);
+            profileImageSelected = true;
         }
     }
     
@@ -223,6 +252,8 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             toast("Please add skills to continue");
         } else if (profileImageNotUploaded()) {
             toast("Please upload your profile picture");
+        } else if (!profileImageSelected) {
+            toast("Please select profile picture");
         } else {
             Employee employee = new Employee(
                     employeeName.getText().toString().toUpperCase().trim(),
@@ -234,11 +265,12 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             
             if (createButton.getText().toString().equals(getResources().getString(R.string.update))) {
                 showLoader("Updting employee...");
-                employeeDatabase.addEmployee(employee, this);
+                employeeDatabase.updateEmployee(employee, this);
                 employeeDatabase.uploadProfileImage(profileImageUri, employee, this);
             } else {
                 showLoader("Adding employee...");
-                employeeDatabase.updateEmployee(employee, this);
+                employeeDatabase.addEmployee(employee, this);
+                employeeDatabase.uploadProfileImage(profileImageUri, employee, this);
             }
         }
     }

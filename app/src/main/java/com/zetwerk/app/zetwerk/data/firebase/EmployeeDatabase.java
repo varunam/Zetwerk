@@ -62,7 +62,7 @@ public class EmployeeDatabase {
     public void addEmployee(Employee employee, EmployeeAddedCallbacks employeeAddedCallbacks) {
         FirebaseDatabase.getInstance()
                 .getReference(EMPLOYEES)
-                .child(employee.getEmployeeId())
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .setValue(employee)
                 .addOnSuccessListener(aVoid -> {
                     if (employeeAddedCallbacks != null)
@@ -107,4 +107,12 @@ public class EmployeeDatabase {
                 });
     }
     
+    public void deleteEmployee(Employee employee,@NonNull EmployeeDeletedCallbacks employeeDeletedCallbacks) {
+        FirebaseDatabase.getInstance()
+                .getReference(EMPLOYEES)
+                .child(employee.getEmployeeId())
+                .removeValue()
+                .addOnSuccessListener(aVoid -> employeeDeletedCallbacks.onEmployeeDeleteSuccessful(employee))
+                .addOnFailureListener(e -> employeeDeletedCallbacks.onEmployeeDeleteFailure(employee, e.getMessage()));
+    }
 }

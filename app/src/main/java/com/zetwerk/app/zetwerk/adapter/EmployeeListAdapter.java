@@ -9,10 +9,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.storage.FirebaseStorage;
 import com.zetwerk.app.zetwerk.R;
+import com.zetwerk.app.zetwerk.data.firebase.EmployeeCardInteractionCallbacks;
 import com.zetwerk.app.zetwerk.data.model.Employee;
 import com.zetwerk.app.zetwerk.views.activities.AddEmployeeActivity;
 
@@ -21,8 +27,10 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_OBJECT_KEY;
+import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.PHOTOS;
 
 /**
  * Created by varun.am on 19/01/19
@@ -33,6 +41,11 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
     private ArrayList<Employee> filteredEmployeeList;
     private int oldClickedPosition = 0;
     private int lastClickedPosition = 0;
+    private EmployeeCardInteractionCallbacks employeeCardInteractionCallbacks;
+    
+    public EmployeeListAdapter(@NonNull EmployeeCardInteractionCallbacks employeeCardInteractionCallbacks) {
+        this.employeeCardInteractionCallbacks = employeeCardInteractionCallbacks;
+    }
     
     public void setEmployeesList(@NonNull ArrayList<Employee> employeesList) {
         this.employeesList = employeesList;
@@ -77,6 +90,10 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
             context.startActivity(intent);
         });
         
+        holder.employeeCard.setOnLongClickListener(view ->
+                cardLongClicked(employee)
+        );
+        
         if (position == lastClickedPosition) {
             holder.actinsLayout.setVisibility(View.VISIBLE);
             holder.divider.setVisibility(View.VISIBLE);
@@ -86,12 +103,40 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
         }
     }
     
+    private boolean cardLongClicked(Employee employee) {
+        employeeCardInteractionCallbacks.onEmployeeCardLongClicked(employee);
+        return true;
+    }
+    
     private void showEmployeeProfileDialog(Context context, Employee employee) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View view = LayoutInflater.from(context).inflate(R.layout.layout_employee_profile, null, false);
         builder.setView(view);
         
         AlertDialog dialog = builder.create();
+        
+        ImageView profieImage = view.findViewById(R.id.dialog_employee_picture_id);
+        androidx.swiperefreshlayout.widget.CircularProgressDrawable circularProgressDrawable = new CircularProgressDrawable(context);
+        circularProgressDrawable.setStrokeWidth(5f);
+        circularProgressDrawable.setCenterRadius(30f);
+        circularProgressDrawable.start();
+        
+        FirebaseStorage.getInstance()
+                .getReference()
+                .child(PHOTOS)
+                .child(employee.getEmployeeId())
+                .getDownloadUrl()
+                .addOnSuccessListener(uri -> {
+                    Glide.with(context)
+                            .load(uri)
+                            .apply(new RequestOptions()
+                                    .placeholder(circularProgressDrawable))
+                            .into(profieImage);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(context, "Profile image download failure\n" + e.getMessage(), Toast.LENGTH_LONG).show();
+                });
+        
         
         TextView name = view.findViewById(R.id.dialog_employee_name_id);
         name.setText(employee.getName());
@@ -110,6 +155,10 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
         }
         skills.append(employee.getSkills().get(i));
         
+        ImageView closeDialog = view.findViewById(R.id.close_dialog_id);
+        closeDialog.setOnClickListener(view1 -> dialog.dismiss());
+        
+        dialog.getWindow().getAttributes().windowAnimations = R.style.dialogAnimation;
         dialog.show();
     }
     

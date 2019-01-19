@@ -1,5 +1,6 @@
 package com.zetwerk.app.zetwerk.views.activities;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,7 +15,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.zetwerk.app.zetwerk.R;
 import com.zetwerk.app.zetwerk.adapter.EmployeeListAdapter;
+import com.zetwerk.app.zetwerk.data.firebase.EmployeeCardInteractionCallbacks;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeDatabase;
+import com.zetwerk.app.zetwerk.data.firebase.EmployeeDeletedCallbacks;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeesLoadedCallbacks;
 import com.zetwerk.app.zetwerk.data.model.Employee;
 
@@ -31,7 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
 
-public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener {
+public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener, EmployeeCardInteractionCallbacks, EmployeeDeletedCallbacks {
     
     private static final int SIGN_IN = 101;
     private RecyclerView employeeRecyclerView;
@@ -61,7 +64,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         progressDialog = new ProgressDialog(this);
         employeesList = new ArrayList<>();
         employeeDatabase = new EmployeeDatabase();
-        employeeListAdapter = new EmployeeListAdapter();
+        employeeListAdapter = new EmployeeListAdapter(this);
         
         employeeRecyclerView = findViewById(R.id.employees_recycler_view_id);
         employeeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -163,4 +166,24 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         });
     }
     
+    @Override
+    public void onEmployeeCardLongClicked(Employee employee) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Delete employee?")
+                .setMessage("Are you sure to delete this employee?")
+                .setPositiveButton("Sure", (dialogInterface, i) -> employeeDatabase.deleteEmployee(employee, this))
+                .setNegativeButton("Cancel", null)
+                .create()
+                .show();
+    }
+    
+    @Override
+    public void onEmployeeDeleteSuccessful(Employee employee) {
+        toast("Employee deleted: " + employee.getName());
+    }
+    
+    @Override
+    public void onEmployeeDeleteFailure(Employee employee, String errorMessage) {
+        toast("Employee delete failure\n" + errorMessage);
+    }
 }
