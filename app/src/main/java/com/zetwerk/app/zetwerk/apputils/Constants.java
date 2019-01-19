@@ -5,4 +5,5 @@ package com.zetwerk.app.zetwerk.apputils;
  */
 public class Constants {
     public static final String EMPLOYEE_COUNT_KEY = "employee-count-key";
+    public static final String EMPLOYEE_OBJECT_KEY = "employee-object-key";
 }

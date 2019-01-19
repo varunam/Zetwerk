@@ -20,4 +20,8 @@
     <string name="employee_id">Employee ID</string>
     <string name="dummy_salary">Salary: 600000</string>
     <string name="add_employee">Add employee</string>
+    <string name="full_profile">Full Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="view_profile">View  Profile</string>
+    <string name="update">Update</string>
 </resources>

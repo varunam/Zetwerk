@@ -11,6 +11,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.zetwerk.app.zetwerk.R;
+import com.zetwerk.app.zetwerk.adapter.EmployeeCardInteractionCallbacks;
 import com.zetwerk.app.zetwerk.adapter.EmployeeListAdapter;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeDatabase;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeesLoadedCallbacks;
@@ -27,7 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
 
-public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener {
+public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener, EmployeeCardInteractionCallbacks {
     
     private static final int SIGN_IN = 101;
     private RecyclerView employeeRecyclerView;
@@ -49,7 +50,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         
         init();
         employeeDatabase.loadEmployeeRecords(this);
-        showLoader("Loading employee records...");
+        showLoader("Fetching awesome employees...");
         
     }
     
@@ -57,7 +58,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         progressDialog = new ProgressDialog(this);
         employeesList = new ArrayList<>();
         employeeDatabase = new EmployeeDatabase();
-        employeeListAdapter = new EmployeeListAdapter();
+        employeeListAdapter = new EmployeeListAdapter(this);
         
         employeeRecyclerView = findViewById(R.id.employees_recycler_view_id);
         employeeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -132,5 +133,10 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     public void hideLoader() {
         if (progressDialog.isShowing())
             progressDialog.dismiss();
+    }
+    
+    @Override
+    public void onEmployeeCardClicked(Employee employee) {
+    
     }
 }

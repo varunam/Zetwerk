@@ -8,4 +8,7 @@ import com.zetwerk.app.zetwerk.data.model.Employee;
 public interface EmployeeAddedCallbacks {
     public void onEmployeeAdded(Employee employee);
     public void onEmployeeAddFailure(Employee employee, String errorMessage);
+    public void onEmployeeUpdated(Employee employee);
+    public void onEmployeeUpdateFailure(Employee employee, String errorMessage);
 }
+

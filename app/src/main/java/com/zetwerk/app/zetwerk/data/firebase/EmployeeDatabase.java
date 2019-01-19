@@ -69,4 +69,20 @@ public class EmployeeDatabase {
                 });
     }
     
+    public void updateEmployee(Employee employee, EmployeeAddedCallbacks employeeAddedCallbacks) {
+        FirebaseDatabase.getInstance()
+                .getReference(EMPLOYEES)
+                .child(employee.getEmployeeId())
+                .setValue(employee)
+                .addOnSuccessListener(aVoid -> {
+                    if (employeeAddedCallbacks != null)
+                        employeeAddedCallbacks.onEmployeeUpdated(employee);
+                    Log.d(TAG, "Employee updated successfully: " + employee.getName());
+                })
+                .addOnFailureListener(e -> {
+                    if (employeeAddedCallbacks != null)
+                        employeeAddedCallbacks.onEmployeeUpdateFailure(employee, e.getMessage());
+                });
+    }
+    
 }

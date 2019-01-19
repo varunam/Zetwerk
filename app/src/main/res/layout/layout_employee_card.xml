@@ -8,14 +8,13 @@
     android:focusable="true"
     android:foreground="?android:attr/selectableItemBackground"
     app:cardCornerRadius="2dp"
-    app:cardElevation="2dp"
+    app:cardElevation="3dp"
     app:cardUseCompatPadding="true">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        >
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/employee_layout_name_id"
@@ -27,6 +26,7 @@
             android:textSize="20sp" />
 
         <LinearLayout
+            android:id="@+id/employee_layout_details_layout_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/employee_layout_name_id"
@@ -58,6 +58,47 @@
                 android:text="@string/dummy_salary"
                 android:textColor="@color/primaryTextColor"
                 android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <View
+            android:id="@+id/employee_layout_divider_id"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_below="@id/employee_layout_details_layout_id"
+            android:layout_margin="3dp"
+            android:background="@color/lightPrimaryColor" />
+
+        <LinearLayout
+            android:id="@+id/employee_layout_actions_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/employee_layout_divider_id"
+            android:layout_marginTop="5dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/employee_layout_view_profile_id"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_circular_button"
+                android:fontFamily="@font/muli_bold"
+                android:text="@string/view_profile"
+                android:textColor="@color/colorPrimaryDark" />
+
+            <Button
+                android:id="@+id/employee_layout_edit_profile_id"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/background_circular_button"
+                android:fontFamily="@font/muli_bold"
+                android:text="@string/edit_profile"
+                android:textColor="@color/colorPrimaryDark" />
 
         </LinearLayout>
 

@@ -1,11 +1,14 @@
 package com.zetwerk.app.zetwerk.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 
 /**
  * Created by varun.am on 19/01/19
  */
-public class Employee {
+public class Employee implements Parcelable {
     
     public static final String EMP_ID_BASE = "ZET0";
     public static final String DEFAULT_EMP_ID = EMP_ID_BASE + "1";
@@ -24,6 +27,26 @@ public class Employee {
         this.skills = skills;
         this.id = employeeId;
     }
+    
+    protected Employee(Parcel in) {
+        name = in.readString();
+        salary = in.readLong();
+        dob = in.readString();
+        skills = in.createStringArrayList();
+        id = in.readString();
+    }
+    
+    public static final Creator<Employee> CREATOR = new Creator<Employee>() {
+        @Override
+        public Employee createFromParcel(Parcel in) {
+            return new Employee(in);
+        }
+        
+        @Override
+        public Employee[] newArray(int size) {
+            return new Employee[size];
+        }
+    };
     
     public String getName() {
         return name;
@@ -65,4 +88,18 @@ public class Employee {
         this.id = employeeId;
     }
     
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+    
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+    
+        parcel.writeString(name);
+        parcel.writeLong(salary);
+        parcel.writeString(dob);
+        parcel.writeStringList(skills);
+        parcel.writeString(id);
+    }
 }

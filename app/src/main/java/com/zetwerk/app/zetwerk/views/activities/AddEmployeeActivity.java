@@ -25,7 +25,7 @@ import java.util.Calendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
+import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_OBJECT_KEY;
 
 public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, EmployeeAddedCallbacks {
     
@@ -36,6 +36,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     private LinearLayout skillsLayout;
     private ProgressDialog progressDialog;
     private CheckBox skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9;
+    private CheckBox[] skillsCheckboxes;
     
     private boolean skillsLayoutShowing = false;
     
@@ -47,9 +48,27 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_add_employee);
         
         init();
-        if (getIntent().hasExtra(EMPLOYEE_COUNT_KEY)) {
-            String newEmployeeId = Employee.EMP_ID_BASE + (getIntent().getIntExtra(EMPLOYEE_COUNT_KEY, 0) + 1);
-            employeeId.setText(newEmployeeId);
+        if (getIntent().hasExtra(EMPLOYEE_OBJECT_KEY)) {
+            Employee employee = getIntent().getParcelableExtra(EMPLOYEE_OBJECT_KEY);
+            displayEmployeeProfile(employee);
+            createButton.setText(getResources().getString(R.string.update));
+        }
+    }
+    
+    private void displayEmployeeProfile(Employee employee) {
+        employeeName.setText(employee.getName());
+        employeeDob.setText(employee.getDob());
+        employeeId.setText(employee.getEmployeeId());
+        employeeSalary.setText(String.valueOf(employee.getSalary()));
+        showSkillsOf(employee);
+    }
+    
+    private void showSkillsOf(Employee employee) {
+        showSkillsLayout();
+        ArrayList<String> skills = employee.getSkills();
+        for (CheckBox checkBox : skillsCheckboxes) {
+            if (skills.contains(checkBox.getText()))
+                checkBox.setChecked(true);
         }
     }
     
@@ -89,6 +108,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         skill7 = findViewById(R.id.profile_skill7_id);
         skill8 = findViewById(R.id.profile_skill8_id);
         skill9 = findViewById(R.id.profile_skill9_id);
+        skillsCheckboxes = new CheckBox[]{skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9};
     }
     
     @Override
@@ -136,7 +156,6 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         } else if (profileImageNotUploaded()) {
             toast("Please upload your profile picture");
         } else {
-            showLoader("Adding employee...");
             Employee employee = new Employee(
                     employeeName.getText().toString().toUpperCase().trim(),
                     Long.parseLong(employeeSalary.getText().toString()),
@@ -144,7 +163,14 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
                     getSelectedSkills(),
                     employeeId.getText().toString().trim()
             );
-            employeeDatabase.addEmployee(employee, this);
+            
+            if (createButton.getText().toString().equals(getResources().getString(R.string.update))) {
+                showLoader("Adding employee...");
+                employeeDatabase.updateEmployee(employee, this);
+            } else {
+                showLoader("Updting employee...");
+                employeeDatabase.addEmployee(employee, this);
+            }
         }
     }
     
@@ -230,6 +256,19 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     
     @Override
     public void onEmployeeAddFailure(Employee employee, String errorMessage) {
+        hideLoader();
+        toast("Please try again\n" + errorMessage);
+    }
+    
+    @Override
+    public void onEmployeeUpdated(Employee employee) {
+        hideLoader();
+        toast("Employee updated: " + employee.getName());
+        onBackPressed();
+    }
+    
+    @Override
+    public void onEmployeeUpdateFailure(Employee employee, String errorMessage) {
         hideLoader();
         toast("Please try again\n" + errorMessage);
     }
