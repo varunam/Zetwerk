@@ -59,13 +59,13 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_employee_list);
         
+        init();
         if (userNotSignedIn()) {
             showSignInUsingPhoneNumberUi();
+        } else {
+            employeeDatabase.loadEmployeeRecords(this);
+            showLoader("Fetching awesome employees...");
         }
-        
-        init();
-        employeeDatabase.loadEmployeeRecords(this);
-        showLoader("Fetching awesome employees...");
         
     }
     
@@ -126,8 +126,11 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         if (requestCode == SIGN_IN) {
             if (resultCode == RESULT_OK) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                if (user != null)
+                if (user != null) {
                     toast("Sign-in success: " + user.getPhoneNumber());
+                    employeeDatabase.loadEmployeeRecords(this);
+                    showLoader("Fetching awesome employees...");
+                }
             } else {
                 toast("Sign-in failed, Please try again");
             }

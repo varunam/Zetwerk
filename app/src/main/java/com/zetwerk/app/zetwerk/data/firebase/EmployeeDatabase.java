@@ -89,18 +89,22 @@ public class EmployeeDatabase {
     
     public void uploadProfileImage(Uri imageUri, Employee employee, ImageUploadedCallbacks imageUploadedCallbacks) {
         StorageReference filePath = FirebaseStorage.getInstance().getReference().child(PHOTOS).child(employee.getEmployeeId());
-        filePath.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    UserProfileChangeRequest userProfile = new UserProfileChangeRequest.Builder()
-                            .setPhotoUri(imageUri)
-                            .build();
-                    if (FirebaseAuth.getInstance().getCurrentUser() != null)
-                        FirebaseAuth.getInstance().getCurrentUser().updateProfile(userProfile);
-                    imageUploadedCallbacks.onImageUploadSuccessful(employee, imageUri);
-                })
-                .addOnFailureListener(e -> {
-                    imageUploadedCallbacks.onImageUploadFailure(employee, e.getMessage());
-                });
+        if (imageUri != null) {
+            filePath.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        UserProfileChangeRequest userProfile = new UserProfileChangeRequest.Builder()
+                                .setPhotoUri(imageUri)
+                                .build();
+                        if (FirebaseAuth.getInstance().getCurrentUser() != null)
+                            FirebaseAuth.getInstance().getCurrentUser().updateProfile(userProfile);
+                        imageUploadedCallbacks.onImageUploadSuccessful(employee, imageUri);
+                    })
+                    .addOnFailureListener(e -> {
+                        imageUploadedCallbacks.onImageUploadFailure(employee, e.getMessage());
+                    });
+        } else {
+            imageUploadedCallbacks.onImageUploadSuccessful(employee, null);
+        }
     }
     
     public void updateEmployee(Employee employee, EmployeeAddedCallbacks employeeAddedCallbacks) {

@@ -60,6 +60,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     private boolean skillsLayoutShowing = false;
     private boolean profileImageSelected = false;
     private boolean profileUpdated = false, imageUploaded = false;
+    private boolean profileUpdation = false;
     
     private EmployeeDatabase employeeDatabase;
     
@@ -77,10 +78,12 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             displayEmployeeProfile(employee);
             createButton.setText(getResources().getString(R.string.update));
             downloadProfileImage(employee);
+            profileUpdation = true;
         }
         if (getIntent().hasExtra(EMPLOYEE_COUNT_KEY)) {
             String employeeIdText = Employee.EMP_ID_BASE + (getIntent().getLongExtra(EMPLOYEE_COUNT_KEY, 0) + 1);
             employeeId.setText(employeeIdText);
+            profileUpdation = false;
         }
     }
     
@@ -252,7 +255,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             toast("Please add skills to continue");
         } else if (profileImageNotUploaded()) {
             toast("Please upload your profile picture");
-        } else if (!profileImageSelected) {
+        } else if (!profileImageSelected && !profileUpdation) {
             toast("Please select profile picture");
         } else {
             Employee employee = new Employee(
