@@ -9,42 +9,44 @@ public class Employee {
     
     public static final String EMP_ID_BASE = "ZET0";
     public static final String DEFAULT_EMP_ID = EMP_ID_BASE + "1";
-    private String employeeName;
-    private long employeeSalary;
-    private String employeeDob;
+    private String name;
+    private long salary;
+    private String dob;
     private ArrayList<String> skills;
-    private String employeeId;
+    private String id;
     
-    public Employee(String employeeName, long employeeSalary, String employeeDob, ArrayList<String> skills, String employeeId) {
-        this.employeeName = employeeName;
-        this.employeeSalary = employeeSalary;
-        this.employeeDob = employeeDob;
+    public Employee(){}
+    
+    public Employee(String name, long salary, String dob, ArrayList<String> skills, String employeeId) {
+        this.name = name;
+        this.salary = salary;
+        this.dob = dob;
         this.skills = skills;
-        this.employeeId = employeeId;
+        this.id = employeeId;
     }
     
-    public String getEmployeeName() {
-        return employeeName;
+    public String getName() {
+        return name;
     }
     
-    public void setEmployeeName(String employeeName) {
-        this.employeeName = employeeName;
+    public void setName(String name) {
+        this.name = name;
     }
     
-    public long getEmployeeSalary() {
-        return employeeSalary;
+    public long getSalary() {
+        return salary;
     }
     
-    public void setEmployeeSalary(long employeeSalary) {
-        this.employeeSalary = employeeSalary;
+    public void setSalary(long salary) {
+        this.salary = salary;
     }
     
-    public String getEmployeeDob() {
-        return employeeDob;
+    public String getDob() {
+        return dob;
     }
     
-    public void setEmployeeDob(String employeeDob) {
-        this.employeeDob = employeeDob;
+    public void setDob(String dob) {
+        this.dob = dob;
     }
     
     public ArrayList<String> getSkills() {
@@ -56,11 +58,11 @@ public class Employee {
     }
     
     public String getEmployeeId() {
-        return employeeId;
+        return id;
     }
     
     public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
+        this.id = employeeId;
     }
     
 }

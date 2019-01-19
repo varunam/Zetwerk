@@ -14,14 +14,14 @@
         tools:replace="android:appComponentFactory"
         android:appComponentFactory="@string/app_name">
         <activity android:name=".views.activities.EmployeeListActivity">
-
-        </activity>
-        <activity android:name=".views.activities.AddEmployeeActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".views.activities.AddEmployeeActivity">
+
         </activity>
 
         <meta-data

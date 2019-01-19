@@ -8,6 +8,7 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.zetwerk.app.zetwerk.R;
+import com.zetwerk.app.zetwerk.adapter.EmployeeListAdapter;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeDatabase;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeesLoadedCallbacks;
 import com.zetwerk.app.zetwerk.data.model.Employee;
@@ -18,18 +19,23 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks {
     
     private static final int SIGN_IN = 101;
+    private RecyclerView employeeRecyclerView;
+    
     private EmployeeDatabase employeeDatabase;
+    private EmployeeListAdapter employeeListAdapter;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        if (!userNotSignedIn()) {
+        if (userNotSignedIn()) {
             showSignInUsingPhoneNumberUi();
         }
         
@@ -39,7 +45,11 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     }
     
     private void init() {
-    
+        employeeDatabase = new EmployeeDatabase();
+        employeeListAdapter = new EmployeeListAdapter();
+        employeeRecyclerView = findViewById(R.id.employees_recycler_view_id);
+        employeeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        employeeRecyclerView.setAdapter(employeeListAdapter);
     }
     
     private boolean userNotSignedIn() {
@@ -81,6 +91,6 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     
     @Override
     public void onEmployeeRecordsLoaded(ArrayList<Employee> employees) {
-    
+        employeeListAdapter.setEmployeesList(employees);
     }
 }

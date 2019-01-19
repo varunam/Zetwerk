@@ -1,5 +1,7 @@
 package com.zetwerk.app.zetwerk.data.firebase;
 
+import android.util.Log;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -17,17 +19,13 @@ import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.EMPLOYEES;
  */
 public class EmployeeDatabase {
     
+    private static final String TAG = EmployeeDatabase.class.getSimpleName();
     private EmployeesLoadedCallbacks employeesLoadedCallbacks;
-    
-    public EmployeeDatabase() {
-    
-    }
     
     public void loadEmployeeRecords(@NonNull EmployeesLoadedCallbacks employeesLoadedCallbacks) {
         this.employeesLoadedCallbacks = employeesLoadedCallbacks;
         FirebaseDatabase.getInstance()
-                .getReference()
-                .child(EMPLOYEES)
+                .getReference(EMPLOYEES)
                 .addValueEventListener(loadEmployeesValueEventListeners);
         
     }
@@ -40,6 +38,9 @@ public class EmployeeDatabase {
                 Employee employee = employeeDataSnapshot.getValue(Employee.class);
                 if (employee != null) {
                     employees.add(employee);
+                    Log.d(TAG, "Added employee: " + employee.getName());
+                } else {
+                    Log.e(TAG, "Employee received null: " + dataSnapshot.getValue());
                 }
             }
             if (employeesLoadedCallbacks != null)
