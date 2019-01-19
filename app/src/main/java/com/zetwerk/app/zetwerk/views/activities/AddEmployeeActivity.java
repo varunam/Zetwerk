@@ -1,5 +1,6 @@
 package com.zetwerk.app.zetwerk.views.activities;
 
+import android.app.ProgressDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -15,6 +16,8 @@ import android.widget.Toast;
 import com.google.android.material.textfield.TextInputEditText;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.zetwerk.app.zetwerk.R;
+import com.zetwerk.app.zetwerk.data.firebase.EmployeeAddedCallbacks;
+import com.zetwerk.app.zetwerk.data.firebase.EmployeeDatabase;
 import com.zetwerk.app.zetwerk.data.model.Employee;
 
 import java.util.ArrayList;
@@ -24,18 +27,19 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
 
-public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, EmployeeAddedCallbacks {
     
     private TextInputEditText employeeName, employeeSalary, employeeDob, employeeId;
     private String[] skills;
     private ImageView profileImage, cameraIcon;
     private Button createButton, addSkillsButton;
     private LinearLayout skillsLayout;
+    private ProgressDialog progressDialog;
+    private CheckBox skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9;
     
     private boolean skillsLayoutShowing = false;
-    private String generatedEmployeeId = Employee.DEFAULT_EMP_ID;
     
-    private CheckBox skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9;
+    private EmployeeDatabase employeeDatabase;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +48,13 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         
         init();
         if (getIntent().hasExtra(EMPLOYEE_COUNT_KEY)) {
-            String newEmployeeId = Employee.EMP_ID_BASE + (getIntent().getIntExtra(EMPLOYEE_COUNT_KEY, 1));
+            String newEmployeeId = Employee.EMP_ID_BASE + (getIntent().getIntExtra(EMPLOYEE_COUNT_KEY, 0) + 1);
             employeeId.setText(newEmployeeId);
         }
     }
     
     private void init() {
+        employeeDatabase = new EmployeeDatabase();
         employeeName = findViewById(R.id.profile_name_id);
         employeeSalary = findViewById(R.id.profile_salary_id);
         
@@ -73,6 +78,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         cameraIcon.setOnClickListener(this);
         skillsLayout = findViewById(R.id.profile_skills_layout_id);
         employeeId = findViewById(R.id.profile_employee_id_id);
+        progressDialog = new ProgressDialog(this);
         
         skill1 = findViewById(R.id.profile_skill1_id);
         skill2 = findViewById(R.id.profile_skill2_id);
@@ -130,13 +136,15 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         } else if (profileImageNotUploaded()) {
             toast("Please upload your profile picture");
         } else {
+            showLoader("Adding employee...");
             Employee employee = new Employee(
                     employeeName.getText().toString().toUpperCase().trim(),
                     Long.parseLong(employeeSalary.getText().toString()),
                     employeeDob.getText().toString().trim(),
                     getSelectedSkills(),
-                    generatedEmployeeId
+                    employeeId.getText().toString().trim()
             );
+            employeeDatabase.addEmployee(employee, this);
         }
     }
     
@@ -200,5 +208,29 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         String dateSet = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
         employeeDob.setText(dateSet);
+    }
+    
+    public void showLoader(String message) {
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+    
+    public void hideLoader() {
+        if (progressDialog.isShowing())
+            progressDialog.dismiss();
+    }
+    
+    @Override
+    public void onEmployeeAdded(Employee employee) {
+        hideLoader();
+        toast("Employee added: " + employee.getName());
+        onBackPressed();
+    }
+    
+    @Override
+    public void onEmployeeAddFailure(Employee employee, String errorMessage) {
+        hideLoader();
+        toast("Please try again\n" + errorMessage);
     }
 }

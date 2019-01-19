@@ -1,7 +1,10 @@
 package com.zetwerk.app.zetwerk.views.activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
@@ -22,11 +25,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks {
+import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
+
+public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener {
     
     private static final int SIGN_IN = 101;
     private RecyclerView employeeRecyclerView;
+    private Button addEmployeeButton;
+    private ProgressDialog progressDialog;
     
+    private ArrayList<Employee> employeesList;
     private EmployeeDatabase employeeDatabase;
     private EmployeeListAdapter employeeListAdapter;
     
@@ -41,15 +49,22 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         
         init();
         employeeDatabase.loadEmployeeRecords(this);
+        showLoader("Loading employee records...");
         
     }
     
     private void init() {
+        progressDialog = new ProgressDialog(this);
+        employeesList = new ArrayList<>();
         employeeDatabase = new EmployeeDatabase();
         employeeListAdapter = new EmployeeListAdapter();
+        
         employeeRecyclerView = findViewById(R.id.employees_recycler_view_id);
         employeeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         employeeRecyclerView.setAdapter(employeeListAdapter);
+        
+        addEmployeeButton = findViewById(R.id.add_employee_id);
+        addEmployeeButton.setOnClickListener(this);
     }
     
     private boolean userNotSignedIn() {
@@ -91,6 +106,31 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     
     @Override
     public void onEmployeeRecordsLoaded(ArrayList<Employee> employees) {
+        hideLoader();
+        this.employeesList = employees;
         employeeListAdapter.setEmployeesList(employees);
+    }
+    
+    @Override
+    public void onClick(View view) {
+        int id = view.getId();
+        switch (id) {
+            case R.id.add_employee_id: {
+                Intent intent = new Intent(this, AddEmployeeActivity.class);
+                intent.putExtra(EMPLOYEE_COUNT_KEY, employeesList.size());
+                startActivity(intent);
+            }
+        }
+    }
+    
+    public void showLoader(String message) {
+        progressDialog.setMessage(message);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+    }
+    
+    public void hideLoader() {
+        if (progressDialog.isShowing())
+            progressDialog.dismiss();
     }
 }
