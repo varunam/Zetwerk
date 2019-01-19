@@ -30,6 +30,25 @@
             android:layout_marginTop="10dp">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/profile_employee_id_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:fontFamily="@font/muli"
+                android:gravity="center"
+                android:hint="@string/employee_id"
+                android:inputType="text"
+                android:textAlignment="center"
+                android:textAllCaps="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/profile_name_id"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

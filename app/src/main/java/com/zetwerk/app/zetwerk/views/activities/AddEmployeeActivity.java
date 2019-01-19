@@ -1,5 +1,6 @@
 package com.zetwerk.app.zetwerk.views.activities;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -12,18 +13,27 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.zetwerk.app.zetwerk.R;
+import com.zetwerk.app.zetwerk.data.model.Employee;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener {
+import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
+
+public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
     
-    private TextInputEditText employeeName, employeeSalary, employeeDob;
+    private TextInputEditText employeeName, employeeSalary, employeeDob, employeeId;
     private String[] skills;
     private ImageView profileImage, cameraIcon;
     private Button createButton, addSkillsButton;
     private LinearLayout skillsLayout;
+    
     private boolean skillsLayoutShowing = false;
+    private String generatedEmployeeId = Employee.DEFAULT_EMP_ID;
     
     private CheckBox skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9;
     
@@ -33,12 +43,27 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         setContentView(R.layout.activity_add_employee);
         
         init();
+        if (getIntent().hasExtra(EMPLOYEE_COUNT_KEY)) {
+            String newEmployeeId = Employee.EMP_ID_BASE + (getIntent().getIntExtra(EMPLOYEE_COUNT_KEY, 1));
+            employeeId.setText(newEmployeeId);
+        }
     }
     
     private void init() {
         employeeName = findViewById(R.id.profile_name_id);
         employeeSalary = findViewById(R.id.profile_salary_id);
+        
         employeeDob = findViewById(R.id.profile_dob_id);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            employeeDob.setShowSoftInputOnFocus(false);
+        }
+        employeeDob.setOnClickListener(this);
+        employeeDob.setOnFocusChangeListener((view, b) -> {
+            if (b) {
+                showDatepicker();
+            }
+        });
+        
         createButton = findViewById(R.id.profile_create_button_id);
         createButton.setOnClickListener(this);
         addSkillsButton = findViewById(R.id.profile_add_skills_button_id);
@@ -47,6 +72,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
         cameraIcon = findViewById(R.id.profile_camera_id);
         cameraIcon.setOnClickListener(this);
         skillsLayout = findViewById(R.id.profile_skills_layout_id);
+        employeeId = findViewById(R.id.profile_employee_id_id);
         
         skill1 = findViewById(R.id.profile_skill1_id);
         skill2 = findViewById(R.id.profile_skill2_id);
@@ -72,9 +98,24 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
                 break;
             case R.id.profile_camera_id:
                 break;
+            case R.id.profile_dob_id:
+                showDatepicker();
+                break;
             default:
                 break;
         }
+    }
+    
+    private void showDatepicker() {
+        Calendar now = Calendar.getInstance();
+        DatePickerDialog dpd = DatePickerDialog.newInstance(
+                this,
+                now.get(Calendar.YEAR), // Initial year selection
+                now.get(Calendar.MONTH), // Initial month selection
+                now.get(Calendar.DAY_OF_MONTH) // Inital day selection
+        );
+        dpd.setAccentColor(getResources().getColor(R.color.colorPrimary));
+        dpd.show(getSupportFragmentManager(), "Datepickerdialog");
     }
     
     private void createProfile() {
@@ -88,8 +129,38 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             toast("Please add skills to continue");
         } else if (profileImageNotUploaded()) {
             toast("Please upload your profile picture");
-        } else
-            toast("Create clicked");
+        } else {
+            Employee employee = new Employee(
+                    employeeName.getText().toString().toUpperCase().trim(),
+                    Long.parseLong(employeeSalary.getText().toString()),
+                    employeeDob.getText().toString().trim(),
+                    getSelectedSkills(),
+                    generatedEmployeeId
+            );
+        }
+    }
+    
+    private ArrayList<String> getSelectedSkills() {
+        ArrayList<String> skillSet = new ArrayList<>();
+        if (skill1.isChecked())
+            skillSet.add(skill1.getText().toString());
+        if (skill2.isChecked())
+            skillSet.add(skill2.getText().toString());
+        if (skill3.isChecked())
+            skillSet.add(skill3.getText().toString());
+        if (skill4.isChecked())
+            skillSet.add(skill4.getText().toString());
+        if (skill5.isChecked())
+            skillSet.add(skill5.getText().toString());
+        if (skill6.isChecked())
+            skillSet.add(skill6.getText().toString());
+        if (skill7.isChecked())
+            skillSet.add(skill7.getText().toString());
+        if (skill8.isChecked())
+            skillSet.add(skill8.getText().toString());
+        if (skill9.isChecked())
+            skillSet.add(skill9.getText().toString());
+        return skillSet;
     }
     
     private boolean profileImageNotUploaded() {
@@ -123,5 +194,11 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     
     public void toast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
+    
+    @Override
+    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+        String dateSet = dayOfMonth + "/" + (monthOfYear + 1) + "/" + year;
+        employeeDob.setText(dateSet);
     }
 }
