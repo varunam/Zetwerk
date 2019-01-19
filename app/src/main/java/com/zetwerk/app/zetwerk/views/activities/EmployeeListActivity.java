@@ -1,0 +1,74 @@
+package com.zetwerk.app.zetwerk.views.activities;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.zetwerk.app.zetwerk.R;
+
+import java.util.Collections;
+import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class EmployeeListActivity extends AppCompatActivity {
+    
+    private static final int SIGN_IN = 101;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        if (!userNotSignedIn()) {
+            showSignInUsingPhoneNumberUi();
+        }
+        
+        init();
+    }
+    
+    private void init() {
+    
+    }
+    
+    private boolean userNotSignedIn() {
+        return FirebaseAuth.getInstance().getCurrentUser() == null;
+    }
+    
+    private void showSignInUsingPhoneNumberUi() {
+        // Choose authentication providers
+        List<AuthUI.IdpConfig> providers = Collections.singletonList(
+                new AuthUI.IdpConfig.PhoneBuilder().build());
+        
+        // Create and launch sign-in intent
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setAvailableProviders(providers)
+                        .build(),
+                SIGN_IN);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == SIGN_IN) {
+            if (resultCode == RESULT_OK) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                if (user != null)
+                    toast("Sign-in success: " + user.getPhoneNumber());
+            } else {
+                toast("Sign-in failed, Please try again");
+            }
+        }
+    }
+    
+    public void toast(String message) {
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
+}

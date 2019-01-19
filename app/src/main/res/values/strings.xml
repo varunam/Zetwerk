@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">Zetwerk</string>
+    <string name="employee_name">Employee Name</string>
+    <string name="date_of_birth">Date of Birth</string>
+    <string name="salary">Salary</string>
+    <string name="add_skills">Add Skills</string>
+    <string name="create">Create</string>
+    <string name="skill_1">Skill 1</string>
+    <string name="skill_2">Skill 2</string>
+    <string name="skill_3">Skill 3</string>
+    <string name="employee_profile">Employee  Profile</string>
+    <string name="profile_picture">Profile Picture</string>
+    <string name="add_or_replace_image">Add or replace image</string>
+    <string name="skill_4">Skill 4</string>
+    <string name="skill_5">Skill 5</string>
+    <string name="skill_6">Skill 6</string>
+    <string name="skill_7">Skill 7</string>
+    <string name="skill_8">Skill 8</string>
+    <string name="skill_9">Skill 9</string>
+</resources>

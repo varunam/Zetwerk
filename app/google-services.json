@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "566970947575",
+    "firebase_url": "https://zetwerk-c6f7c.firebaseio.com",
+    "project_id": "zetwerk-c6f7c",
+    "storage_bucket": "zetwerk-c6f7c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:566970947575:android:a217eebc6eeb2665",
+        "android_client_info": {
+          "package_name": "com.zetwerk.app.zetwerk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "566970947575-mvh80b4a5ekchilj4k6lp3t0a2ki1dj2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zetwerk.app.zetwerk",
+            "certificate_hash": "0e8de727d486e0bd0f13932fcb06b8818078bd70"
+          }
+        },
+        {
+          "client_id": "566970947575-390ck435o1209rfra4eltte5bo29k564.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZmovypHuSZkrXrodsYbkiz-3Wlvtlj2A"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "566970947575-390ck435o1209rfra4eltte5bo29k564.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
