@@ -4,10 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.zetwerk.app.zetwerk.R;
@@ -31,7 +31,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     
     private static final int SIGN_IN = 101;
     private RecyclerView employeeRecyclerView;
-    private Button addEmployeeButton;
+    private FloatingActionButton addEmployeeButton;
     private ProgressDialog progressDialog;
     
     private ArrayList<Employee> employeesList;
@@ -41,7 +41,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_employee_list);
         
         if (userNotSignedIn()) {
             showSignInUsingPhoneNumberUi();

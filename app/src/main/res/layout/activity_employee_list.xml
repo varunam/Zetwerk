@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,16 +13,20 @@
 
     </androidx.recyclerview.widget.RecyclerView>
 
-    <Button
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add_employee_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="20dp"
-        android:background="@color/colorPrimary"
         android:fontFamily="@font/muli_extrabold"
         android:text="@string/add_employee"
-        android:textColor="@color/white"
-        android:textSize="16sp" />
+        android:textColor="@color/lightPrimaryColor"
+        android:textSize="16sp"
+        android:tint="@color/colorPrimaryDark"
+        app:maxImageSize="35dp"
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_add" />
 
 </RelativeLayout>
