@@ -1,9 +1,15 @@
 package com.zetwerk.app.zetwerk.views.activities;
 
+import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -14,22 +20,30 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.textfield.TextInputEditText;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.zetwerk.app.zetwerk.R;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeAddedCallbacks;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeDatabase;
+import com.zetwerk.app.zetwerk.data.firebase.ImageUploadedCallbacks;
 import com.zetwerk.app.zetwerk.data.model.Employee;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_OBJECT_KEY;
 
-public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, EmployeeAddedCallbacks {
+public class AddEmployeeActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, EmployeeAddedCallbacks, ImageUploadedCallbacks {
     
+    private static final String TAG = AddEmployeeActivity.class.getSimpleName();
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 102;
+    private static final int GALLERY_INTENT = 103;
     private TextInputEditText employeeName, employeeSalary, employeeDob, employeeId;
     private String[] skills;
     private ImageView profileImage, cameraIcon;
@@ -38,8 +52,10 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     private ProgressDialog progressDialog;
     private CheckBox skill1, skill2, skill3, skill4, skill5, skill6, skill7, skill8, skill9;
     private CheckBox[] skillsCheckboxes;
+    private Uri profileImageUri;
     
     private boolean skillsLayoutShowing = false;
+    private boolean profileUpdated = false, imageUploaded = false;
     
     private EmployeeDatabase employeeDatabase;
     
@@ -127,12 +143,60 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
                 createProfile();
                 break;
             case R.id.profile_camera_id:
+                cameraAction();
                 break;
             case R.id.profile_dob_id:
                 showDatepicker();
                 break;
             default:
                 break;
+        }
+    }
+    
+    private void cameraAction() {
+        if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+                alertDialog.setTitle("Requires permission");
+                alertDialog.setMessage("This app requires permission to read device storage to update profile picture");
+                alertDialog.setCancelable(false);
+                alertDialog.setPositiveButton("Ask me again", (dialog, which) -> ActivityCompat.requestPermissions(AddEmployeeActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE));
+                alertDialog.setNegativeButton("ok", null);
+                alertDialog.create().show();
+            } else {
+                ActivityCompat.requestPermissions(AddEmployeeActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+            }
+        } else {
+            selectPhotoFromGallery();
+        }
+    }
+    
+    private void selectPhotoFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, GALLERY_INTENT);
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                selectPhotoFromGallery();
+            }
+        }
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if ((requestCode == GALLERY_INTENT) && (resultCode == RESULT_OK)) {
+            profileImageUri = data.getData();
+            profileImage.setImageURI(profileImageUri);
+            Glide.with(this)
+                    .load(profileImageUri)
+                    .into(profileImage);
         }
     }
     
@@ -171,6 +235,7 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
             if (createButton.getText().toString().equals(getResources().getString(R.string.update))) {
                 showLoader("Updting employee...");
                 employeeDatabase.addEmployee(employee, this);
+                employeeDatabase.uploadProfileImage(profileImageUri, employee, this);
             } else {
                 showLoader("Adding employee...");
                 employeeDatabase.updateEmployee(employee, this);
@@ -261,27 +326,52 @@ public class AddEmployeeActivity extends AppCompatActivity implements View.OnCli
     
     @Override
     public void onEmployeeAdded(Employee employee) {
-        hideLoader();
-        toast("Employee added: " + employee.getName());
-        onBackPressed();
+        profileUpdated = true;
+        if (imageUploaded) {
+            hideLoader();
+            toast("Employee added: " + employee.getName());
+            onBackPressed();
+        }
     }
     
     @Override
     public void onEmployeeAddFailure(Employee employee, String errorMessage) {
+        profileUpdated = false;
         hideLoader();
         toast("Please try again\n" + errorMessage);
     }
     
     @Override
     public void onEmployeeUpdated(Employee employee) {
-        hideLoader();
-        toast("Employee updated: " + employee.getName());
-        onBackPressed();
+        profileUpdated = true;
+        if (imageUploaded) {
+            hideLoader();
+            toast("Employee updated: " + employee.getName());
+            onBackPressed();
+        }
     }
     
     @Override
     public void onEmployeeUpdateFailure(Employee employee, String errorMessage) {
+        profileUpdated = false;
         hideLoader();
         toast("Please try again\n" + errorMessage);
+    }
+    
+    @Override
+    public void onImageUploadSuccessful(Employee employee, Uri imageUri) {
+        imageUploaded = true;
+        if (profileUpdated) {
+            hideLoader();
+            Log.d(TAG, "Image upload successful");
+            onBackPressed();
+        }
+    }
+    
+    @Override
+    public void onImageUploadFailure(Employee employee, String errorMessage) {
+        imageUploaded = false;
+        hideLoader();
+        Log.d(TAG, "Image upload failure");
     }
 }

@@ -5,4 +5,5 @@ package com.zetwerk.app.zetwerk.apputils;
  */
 public class FirebaseConstants {
     public static final String EMPLOYEES = "employees";
+    public static final String PHOTOS = "photos";
 }

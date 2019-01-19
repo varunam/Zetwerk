@@ -1,11 +1,16 @@
 package com.zetwerk.app.zetwerk.data.firebase;
 
+import android.net.Uri;
 import android.util.Log;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.zetwerk.app.zetwerk.data.model.Employee;
 
 import java.util.ArrayList;
@@ -13,6 +18,7 @@ import java.util.ArrayList;
 import androidx.annotation.NonNull;
 
 import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.EMPLOYEES;
+import static com.zetwerk.app.zetwerk.apputils.FirebaseConstants.PHOTOS;
 
 /**
  * Created by varun.am on 19/01/19
@@ -66,6 +72,22 @@ public class EmployeeDatabase {
                 .addOnFailureListener(e -> {
                     if (employeeAddedCallbacks != null)
                         employeeAddedCallbacks.onEmployeeAddFailure(employee, e.getMessage());
+                });
+    }
+    
+    public void uploadProfileImage(Uri imageUri, Employee employee, ImageUploadedCallbacks imageUploadedCallbacks) {
+        StorageReference filePath = FirebaseStorage.getInstance().getReference().child(PHOTOS).child(employee.getEmployeeId());
+        filePath.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    UserProfileChangeRequest userProfile = new UserProfileChangeRequest.Builder()
+                            .setPhotoUri(imageUri)
+                            .build();
+                    if (FirebaseAuth.getInstance().getCurrentUser() != null)
+                        FirebaseAuth.getInstance().getCurrentUser().updateProfile(userProfile);
+                    imageUploadedCallbacks.onImageUploadSuccessful(employee, imageUri);
+                })
+                .addOnFailureListener(e -> {
+                    imageUploadedCallbacks.onImageUploadFailure(employee, e.getMessage());
                 });
     }
     
