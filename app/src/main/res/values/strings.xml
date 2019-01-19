@@ -18,4 +18,5 @@
     <string name="skill_8">Skill 8</string>
     <string name="skill_9">Skill 9</string>
     <string name="employee_id">Employee ID</string>
+    <string name="dummy_salary">Salary: 600000</string>
 </resources>

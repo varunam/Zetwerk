@@ -8,16 +8,21 @@ import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.zetwerk.app.zetwerk.R;
+import com.zetwerk.app.zetwerk.data.firebase.EmployeeDatabase;
+import com.zetwerk.app.zetwerk.data.firebase.EmployeesLoadedCallbacks;
+import com.zetwerk.app.zetwerk.data.model.Employee;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class EmployeeListActivity extends AppCompatActivity {
+public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks {
     
     private static final int SIGN_IN = 101;
+    private EmployeeDatabase employeeDatabase;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,8 @@ public class EmployeeListActivity extends AppCompatActivity {
         }
         
         init();
+        employeeDatabase.loadEmployeeRecords(this);
+        
     }
     
     private void init() {
@@ -70,5 +77,10 @@ public class EmployeeListActivity extends AppCompatActivity {
     
     public void toast(String message) {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
+    
+    @Override
+    public void onEmployeeRecordsLoaded(ArrayList<Employee> employees) {
+    
     }
 }
