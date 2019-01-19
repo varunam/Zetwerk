@@ -94,6 +94,9 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
                 cardLongClicked(employee)
         );
         
+        String idText = "ID: " + employee.getEmployeeId();
+        holder.id.setText(idText);
+        
         if (position == lastClickedPosition) {
             holder.actinsLayout.setVisibility(View.VISIBLE);
             holder.divider.setVisibility(View.VISIBLE);
@@ -141,6 +144,10 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
         TextView name = view.findViewById(R.id.dialog_employee_name_id);
         name.setText(employee.getName());
         
+        TextView id = view.findViewById(R.id.employee_dialog_id_id);
+        String idText = "ID: " + employee.getEmployeeId();
+        id.setText(idText);
+        
         TextView dob = view.findViewById(R.id.employee_dialog_dob_id);
         dob.setText(employee.getDob());
         
@@ -179,7 +186,8 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
                 
                 ArrayList<Employee> filteredList = new ArrayList<>();
                 for (Employee employee : employeesList) {
-                    if (employee.getName().toLowerCase().contains(searchedString)) {
+                    if (employee.getName().toLowerCase().contains(searchedString)
+                            || employee.getEmployeeId().toLowerCase().contains(searchedString)) {
                         filteredList.add(employee);
                     }
                 }
@@ -205,6 +213,7 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
         private View divider;
         private Button viewProfile;
         private Button editProfile;
+        private TextView id;
         
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -217,6 +226,7 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
             employeeSalaryTextView = itemView.findViewById(R.id.employee_layout_salary_id);
             viewProfile = itemView.findViewById(R.id.employee_layout_view_profile_id);
             editProfile = itemView.findViewById(R.id.employee_layout_edit_profile_id);
+            id = itemView.findViewById(R.id.employee_layout_id_id);
         }
     }
 }

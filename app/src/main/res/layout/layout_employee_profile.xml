@@ -20,18 +20,18 @@
 
     <ImageView
         android:id="@+id/close_dialog_id"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
         android:layout_alignParentEnd="true"
         android:layout_margin="5dp"
-        app:srcCompat="@drawable/ic_close"
         android:tint="@color/colorPrimaryDark"
-        android:layout_width="30dp"
-        android:layout_height="30dp" />
+        app:srcCompat="@drawable/ic_close" />
 
     <TextView
         android:id="@+id/dialog_employee_name_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/dialog_employee_picture_id"
+        android:layout_below="@id/employee_dialog_id_id"
         android:layout_margin="5dp"
         android:background="@color/lightPrimaryColor"
         android:fontFamily="@font/muli_bold"
@@ -44,6 +44,18 @@
         android:textAllCaps="true"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="17sp" />
+
+    <TextView
+        android:id="@+id/employee_dialog_id_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/dialog_employee_picture_id"
+        android:layout_centerHorizontal="true"
+        android:layout_marginEnd="20dp"
+        android:fontFamily="@font/muli_bold"
+        android:textColor="@color/colorPrimary"
+        android:alpha="0.8"
+        android:textSize="15sp" />
 
     <LinearLayout
         android:id="@+id/employee_dialog_dob_layout_id"
