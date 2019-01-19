@@ -28,4 +28,5 @@
     <string name="skills_">Skills: </string>
     <string name="date_of_birth_">Date of Birth: </string>
     <string name="dummy_salary_">Salary: </string>
+    <string name="search">Search</string>
 </resources>

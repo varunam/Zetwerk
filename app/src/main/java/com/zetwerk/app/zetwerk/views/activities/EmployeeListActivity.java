@@ -3,6 +3,8 @@ package com.zetwerk.app.zetwerk.views.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,7 +13,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.zetwerk.app.zetwerk.R;
-import com.zetwerk.app.zetwerk.adapter.EmployeeCardInteractionCallbacks;
 import com.zetwerk.app.zetwerk.adapter.EmployeeListAdapter;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeeDatabase;
 import com.zetwerk.app.zetwerk.data.firebase.EmployeesLoadedCallbacks;
@@ -23,12 +24,14 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_COUNT_KEY;
 
-public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener, EmployeeCardInteractionCallbacks {
+public class EmployeeListActivity extends AppCompatActivity implements EmployeesLoadedCallbacks, View.OnClickListener {
     
     private static final int SIGN_IN = 101;
     private RecyclerView employeeRecyclerView;
@@ -58,7 +61,7 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
         progressDialog = new ProgressDialog(this);
         employeesList = new ArrayList<>();
         employeeDatabase = new EmployeeDatabase();
-        employeeListAdapter = new EmployeeListAdapter(this);
+        employeeListAdapter = new EmployeeListAdapter();
         
         employeeRecyclerView = findViewById(R.id.employees_recycler_view_id);
         employeeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -136,7 +139,28 @@ public class EmployeeListActivity extends AppCompatActivity implements Employees
     }
     
     @Override
-    public void onEmployeeCardClicked(Employee employee) {
-    
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_list, menu);
+        MenuItem item = menu.findItem(R.id.searchID);
+        
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(item);
+        search(searchView);
+        return true;
     }
+    
+    private void search(SearchView searchView) {
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+            
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                employeeListAdapter.getFilter().filter(newText);
+                return true;
+            }
+        });
+    }
+    
 }

@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,19 +27,16 @@ import static com.zetwerk.app.zetwerk.apputils.Constants.EMPLOYEE_OBJECT_KEY;
 /**
  * Created by varun.am on 19/01/19
  */
-public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapter.ViewHolder> {
+public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapter.ViewHolder> implements Filterable {
     
     private ArrayList<Employee> employeesList;
-    private EmployeeCardInteractionCallbacks employeeCardInteractionCallbacks;
+    private ArrayList<Employee> filteredEmployeeList;
     private int oldClickedPosition = 0;
     private int lastClickedPosition = 0;
     
-    public EmployeeListAdapter(@NonNull EmployeeCardInteractionCallbacks employeeCardInteractionCallbacks) {
-        this.employeeCardInteractionCallbacks = employeeCardInteractionCallbacks;
-    }
-    
     public void setEmployeesList(@NonNull ArrayList<Employee> employeesList) {
         this.employeesList = employeesList;
+        this.filteredEmployeeList = employeesList;
         notifyDataSetChanged();
     }
     
@@ -50,7 +49,7 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
     
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Employee employee = employeesList.get(position);
+        Employee employee = filteredEmployeeList.get(position);
         Context context = holder.employeeCard.getContext();
         
         String salary = "Salary: " + employee.getSalary();
@@ -66,7 +65,6 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
             lastClickedPosition = position;
             notifyItemChanged(oldClickedPosition);
             notifyItemChanged(lastClickedPosition);
-            employeeCardInteractionCallbacks.onEmployeeCardClicked(employee);
         });
         
         holder.viewProfile.setOnClickListener(view -> {
@@ -107,7 +105,7 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
         TextView skills = view.findViewById(R.id.employee_dialog_skills_id);
         
         int i = 0;
-        for (i = 0; i<employee.getSkills().size()-1; i++) {
+        for (i = 0; i < employee.getSkills().size() - 1; i++) {
             skills.append(employee.getSkills().get(i) + ", ");
         }
         skills.append(employee.getSkills().get(i));
@@ -117,10 +115,37 @@ public class EmployeeListAdapter extends RecyclerView.Adapter<EmployeeListAdapte
     
     @Override
     public int getItemCount() {
-        if (employeesList == null)
+        if (filteredEmployeeList == null)
             return 0;
         else
-            return employeesList.size();
+            return filteredEmployeeList.size();
+    }
+    
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence charSequence) {
+                String searchedString = charSequence.toString().toLowerCase();
+                
+                ArrayList<Employee> filteredList = new ArrayList<>();
+                for (Employee employee : employeesList) {
+                    if (employee.getName().toLowerCase().contains(searchedString)) {
+                        filteredList.add(employee);
+                    }
+                }
+                
+                FilterResults filterResults = new FilterResults();
+                filterResults.values = filteredList;
+                return filterResults;
+            }
+            
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                filteredEmployeeList = (ArrayList<Employee>) filterResults.values;
+                notifyDataSetChanged();
+            }
+        };
     }
     
     public class ViewHolder extends RecyclerView.ViewHolder {
